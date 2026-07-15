@@ -1,10 +1,9 @@
 # general settings
-name: HAT_SRx4_finetune_Wang2023
+name: HAT_SRx4_scratch_Wang2023
 model_type: HATModel
 scale: 4
 num_gpu: 1       
 manual_seed: 0
-
 # dataset and data loader settings
 datasets:
   train:
@@ -20,7 +19,6 @@ datasets:
     batch_size_per_gpu: 8
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
-
   val:
     name: Wang2023_val
     type: NpyVolumeSRDataset
@@ -30,7 +28,6 @@ datasets:
     gt_size: 64
     channels: 3
     length: 100
-
 # network structures
 network_g:
   type: HAT
@@ -49,37 +46,31 @@ network_g:
   mlp_ratio: 2
   upsampler: 'pixelshuffle'
   resi_connection: '1conv'
-
 # path
 path:
-  pretrain_network_g: /mimer/NOBACKUP/groups/kthmech/nvlmds/super-resolution/submodules/HAT/experiments/pretrained_models/HAT_SRx4_ImageNet-pretrain.pth
+  pretrain_network_g: ~
   param_key_g: params_ema
   strict_load_g: true
   resume_state: ~
-
 # training settings
 train:
   ema_decay: 0.999
   optim_g:
     type: Adam
-    lr: !!float 1e-5
+    lr: !!float 2e-4
     weight_decay: 0
     betas: [0.9, 0.99]
-
   scheduler:
     type: MultiStepLR
-    milestones: [125000, 200000, 230000, 240000]
+    milestones: [250000, 400000, 450000, 475000]
     gamma: 0.5
-
-  total_iter: 250000
+  total_iter: 500000
   warmup_iter: -1  # sem warm-up
-
   # losses
   pixel_opt:
     type: L1Loss
     loss_weight: 1.0
     reduction: mean
-
 # validation settings
 val:
   val_freq: !!float 5000
@@ -89,20 +80,14 @@ val:
       type: calculate_psnr
       crop_border: 4
       test_y_channel: false
-    ssim:
-      type: calculate_ssim
-      crop_border: 4
-      test_y_channel: false
-
 # logging settings
 logger:
   print_freq: 100
   save_checkpoint_freq: !!float 5000
   use_tb_logger: true
   wandb:
-    project: hat-finetune-wang2023
+    project: hat-scratch-wang2023
     resume_id: ~
-
 # dist training settings
 dist_params:
   backend: nccl
